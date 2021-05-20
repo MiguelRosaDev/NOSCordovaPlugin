@@ -91,8 +91,7 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
                         request.setValue(headerValue, forHTTPHeaderField: headerName)
                         
                         if(headerName.contains("UserAgent")){                             
-                            let originalUserAgent = webView?.evaluateJavaScript("navigator.userAgent")!         
-                            originalUserAgent += headerValue
+                            let originalUserAgent = [_webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] + headerValue
                             
                             defaults.register(defaults: ["UserAgent": originalUserAgent])
                             webView?.customUserAgent = headerValue
@@ -505,5 +504,36 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
         
     }
     
+    @interface WKWebView(SynchronousEvaluateJavaScript)
+- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;
+@end
+
+//Extend new WKWebView for stringByEvaluatingJavaScript 20/05/2021
+@implementation WKWebView(SynchronousEvaluateJavaScript)
+
+- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script
+{
+    __block NSString *resultString = nil;
+    __block BOOL finished = NO;
+
+    [self evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
+        if (error == nil) {
+            if (result != nil) {
+                resultString = [NSString stringWithFormat:@"%@", result];
+            }
+        } else {
+            NSLog(@"evaluateJavaScript error : %@", error.localizedDescription);
+        }
+        finished = YES;
+    }];
+
+    while (!finished)
+    {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+
+    return resultString;
+}
+@end
     
 }
