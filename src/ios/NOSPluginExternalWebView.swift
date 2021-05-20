@@ -504,11 +504,11 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
         
     }
     
-    @interface WKWebView(SynchronousEvaluateJavaScript)
+}
+@interface WKWebView(SynchronousEvaluateJavaScript)
 - (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;
 @end
 
-//Extend new WKWebView for stringByEvaluatingJavaScript 20/05/2021
 @implementation WKWebView(SynchronousEvaluateJavaScript)
 
 - (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script
@@ -535,5 +535,3 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
     return resultString;
 }
 @end
-    
-}
