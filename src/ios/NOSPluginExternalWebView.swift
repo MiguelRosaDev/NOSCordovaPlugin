@@ -1,6 +1,27 @@
 import UIKit
 import WebKit
 
+extension WKWebView {
+    func evaluate(script: String, completion: @escaping (Any?, Error?) -> Void) {
+        var finished = false
+
+        evaluateJavaScript(script, completionHandler: { (result, error) in
+            if error == nil {
+                if result != nil {
+                    completion(result, nil)
+                }
+            } else {
+                completion(nil, error)
+            }
+            finished = true
+        })
+
+        while !finished {
+            RunLoop.current.run(mode: RunLoop.Mode(rawValue: "NSDefaultRunLoopMode"), before: NSDate.distantFuture)
+        }
+    }
+}
+
 class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
     
     var urlLoading : String?
@@ -91,7 +112,7 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
                         request.setValue(headerValue, forHTTPHeaderField: headerName)
                         
                         if(headerName.contains("UserAgent")){                             
-                            let originalUserAgent = ""//[_webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] + headerValue
+                            let originalUserAgent = webView?.evaluateJavaScript("navigator.userAgent")
                             
                             defaults.register(defaults: ["UserAgent": originalUserAgent])
                             webView?.customUserAgent = headerValue
@@ -503,35 +524,4 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
         return UIColor.init(red: red, green: green, blue:  blue, alpha: alpha)
         
     }
-    
 }
-@interface WKWebView(SynchronousEvaluateJavaScript)
-- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;
-@end
-
-@implementation WKWebView(SynchronousEvaluateJavaScript)
-
-- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script
-{
-    __block NSString *resultString = nil;
-    __block BOOL finished = NO;
-
-    [self evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
-        if (error == nil) {
-            if (result != nil) {
-                resultString = [NSString stringWithFormat:@"%@", result];
-            }
-        } else {
-            NSLog(@"evaluateJavaScript error : %@", error.localizedDescription);
-        }
-        finished = YES;
-    }];
-
-    while (!finished)
-    {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-    }
-
-    return resultString;
-}
-@end
