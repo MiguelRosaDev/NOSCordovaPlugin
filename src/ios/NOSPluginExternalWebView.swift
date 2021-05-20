@@ -94,9 +94,7 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
                             //let originalUserAgent = UIWebView().stringByEvaluatingJavaScript(from: "navigator.userAgent")! + headerValue
                              
                             let originalUserAgent = ""
-                            webView.evaluateJavaScript("navigator.userAgent", completionHandler: { (object, error) in
-                                originalUserAgent  = object + headerValue
-                            })
+                            webView?.evaluateJavaScript("navigator.userAgent")
                             
                             defaults.register(defaults: ["UserAgent": originalUserAgent])
                             webView?.customUserAgent = headerValue
