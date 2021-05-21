@@ -112,14 +112,7 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
                         request.setValue(headerValue, forHTTPHeaderField: headerName)
                         
                         if(headerName.contains("UserAgent")){ 
-                            let originalUserAgent = "" //webView?.evaluateJavaScript("navigator.userAgent") //+ headerValue
-                            
-                            webView.evaluateJavaScript("navigator.userAgent") { (result, error) in
-                            if let result = result {
-                                originalUserAgent = result + headerValue
-                                }
-                            else { originalUserAgent = webView.evaluateJavaScript("navigator.userAgent") }    
-                            }
+                            let originalUserAgent = webView.evaluateJavaScript("navigator.userAgent")! //+ headerValue
                             
                             defaults.register(defaults: ["UserAgent": originalUserAgent])
                             webView?.customUserAgent = headerValue
