@@ -57,8 +57,6 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
     var returnURL: String?
     var buttonsAlignment: String?
     var showBottomBar: Bool = true
-    
-    mutating func append(_ other: String)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -114,9 +112,11 @@ class NOSPluginExternalWebView: UIViewController, WKNavigationDelegate {
                         request.setValue(headerValue, forHTTPHeaderField: headerName)
                         
                         if(headerName.contains("UserAgent")){ 
-                            let originalUserAgent = "\(webView?.evaluateJavaScript("navigator.userAgent")) + \(headerValue)"                  
+                            let originalUserAgent = webView?.evaluateJavaScript("navigator.userAgent") //+ headerValue
+                            let temp = ""
+                            temp.append(originalUserAgent)
                             
-                            defaults.register(defaults: ["UserAgent": originalUserAgent])
+                            defaults.register(defaults: ["UserAgent": temp])
                             webView?.customUserAgent = headerValue
                             
                         }
